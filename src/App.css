@@ -1,0 +1,514 @@
+/* Global Styles & Fonts */
+:root {
+  --primary-color: #38e07b;
+  --secondary-color: #0b0f0c;
+  --tertiary-color: #51946c;
+  --background-light: #f8fbfa;
+  --card-background: #e8f2ec;
+  --border-color: #daeded;
+  --new-color: #333;
+  --new2-color: #0e1a13;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Work Sans", "Noto Sans", sans-serif;
+  color: var(--secondary-color);
+  background-color: var(--background-light);
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.content-wrapper {
+  max-width: 960px;
+  width: 100%;
+}
+
+/* Header */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 40px;
+  flex-wrap: wrap;
+  background-color: var(--new-color);
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--secondary-color);
+}
+
+.logo-text {
+  width: 50%;
+  height: 60px;
+  color: var(--background-light);
+}
+
+.he {
+  color: var(--border-color);
+}
+
+.nav-and-cta {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+  gap: 32px;
+}
+
+.main-nav {
+  display: none;
+  align-items: center;
+  gap: 36px;
+}
+
+.nav-link {
+  color: var(--background-light);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 4px 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-color);
+  background-color: rgba(56, 224, 123, 0.15);
+  border-radius: 4px;
+  transform: scale(1.05);
+}
+
+/* CTA Button */
+.cta-button {
+  display: flex;
+  min-width: 84px;
+  max-width: 480px;
+  height: 40px;
+  padding: 0 16px;
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.015em;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.cta-text {
+  white-space: nowrap;
+}
+
+/* Hero Section */
+.hero-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.hero-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  min-height: 480px;
+  gap: 24px;
+  padding: 0 16px 40px;
+  width: 100%;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://media.istockphoto.com/id/472165353/photo/little-girl-holding-bowl-at-soup-kitchen-or-food-bank.jpg?s=2048x2048&w=is&k=20&c=BPRuKeskCaxyjlUuhwxAkeeo4OCA_GYZ24VgnBCM6uk=");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.hero-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.hero-title {
+  color: white;
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: -0.033em;
+}
+
+.hero-subtitle {
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.hero-cta-button {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 1rem;
+}
+
+/* Stats Section */
+.stats-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  width: 100%;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 158px;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 24px;
+  background-color: var(--card-background);
+}
+
+.stat-label {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* How It Works Section */
+.how-it-works-section {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 40px 16px;
+  width: 100%;
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.section-cta-button {
+  width: fit-content;
+  height: 48px;
+  padding: 0 20px;
+  font-size: 1rem;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+  gap: 12px;
+}
+
+.step-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-light);
+  padding: 16px;
+}
+
+.step-icon {
+  color: var(--secondary-color);
+}
+
+.step-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.step-description {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--tertiary-color);
+}
+
+/* Testimonials */
+.testimonials-heading {
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  padding: 20px 16px 12px;
+  width: 100%;
+}
+
+.testimonials-carousel {
+  display: flex;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 16px;
+  gap: 12px;
+  width: 100%;
+}
+
+.testimonials-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+  border-radius: 8px;
+  min-width: 160px;
+  width: 100%;
+}
+
+.testimonial-image-1,
+.testimonial-image-2 {
+  width: 60%;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+}
+
+.testimonial-image-1 {
+  background-image: url("https://niwala.org/wp-content/uploads/2023/04/kL4ow1680863163.png");
+}
+
+.testimonial-image-2 {
+  background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZEAylX7TAyF-p8TGPOJRObi_LWQ9si5Ozug&s");
+}
+
+.testimonial-text {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.testimonial-author {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--tertiary-color);
+}
+
+/* Final CTA Section */
+.cta-section {
+  width: 100%;
+  padding: 40px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+}
+
+.cta-title {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.cta-button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.final-cta-button {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 1rem;
+  flex-grow: 1;
+}
+
+/* Footer */
+.main-footer {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: var(--new2-color);
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+  max-width: 960px;
+  width: 100%;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.footer-link {
+  text-decoration: none;
+  color: var(--tertiary-color);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  min-width: 160px;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.social-icon {
+  color: var(--tertiary-color);
+}
+
+.copyright-text {
+  color: var(--tertiary-color);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.logos-container {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-logo {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Typewriter Animation */
+.typewriter {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-height: 2rem;
+}
+
+/* Media Queries for Responsiveness */
+@media (min-width: 480px) {
+  .hero-card {
+    padding: 0 40px 40px;
+    gap: 32px;
+    border-radius: 8px;
+  }
+  .hero-title {
+    font-size: 3rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  .how-it-works-section {
+    padding: 40px 40px;
+  }
+  .section-title {
+    font-size: 2.25rem;
+  }
+  .footer-links {
+    flex-wrap: nowrap;
+    justify-content: space-around;
+  }
+}
+
+@media (min-width: 768px) {
+  .main-header {
+    padding: 12px 80px;
+  }
+  .main-nav {
+    display: flex;
+  }
+  .main-content {
+    padding: 20px 80px;
+  }
+  .nav-and-cta {
+    gap: 32px;
+  }
+  .hero-section {
+    padding: 20px 0;
+  }
+}
+
+/* Navigation active state */
+.nav-link.active {
+  font-weight: 700;
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+/* Content transitions */
+.content-section {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.content-section.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
