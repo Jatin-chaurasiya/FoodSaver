@@ -1,102 +1,126 @@
 import React, { useState, useEffect } from 'react';
-import '../css/Contributors.css';
+// --- Import the new CSS file ---
+import '../css/Contributors.css'; 
+// --- Import the new Modal component ---
+import ContributorModal from './ContributorModal'; 
 
-// Define your repository details here
+// --- Define your repo details ---
 const REPO_OWNER = 'abhishekkumar177';
 const REPO_NAME = 'FoodSaver';
+const PROJECT_LEAD = 'abhishekkumar177'; // Your GitHub username
 
 const Contributors = () => {
   const [stats, setStats] = useState({
     totalContributors: 0,
-    totalCommits: 0, // This will be total contributions
-    totalPRs: 0,     // New stat
-    goldContributors: 0,
+    totalCommits: 0,
+    totalPRs: 0,
+    totalPoints: 0, // New stat
   });
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('contributions'); // Default sort
+  const [sortBy, setSortBy] = useState('contributions');
   const [filterLevel, setFilterLevel] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   
-  // --- States for fetched data ---
   const [contributors, setContributors] = useState([]);
+  const [projectLead, setProjectLead] = useState(null); // State for the lead
+  const [activity, setActivity] = useState([]); // State for timeline
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // --- State for the modal ---
+  const [selectedContributor, setSelectedContributor] = useState(null);
 
-  // --- Fetch data from GitHub API ---
   useEffect(() => {
-    const fetchContributorData = async () => {
+    const fetchAllData = async () => {
+      setIsLoading(true);
       try {
-        // --- We will fetch from two endpoints ---
         const contribUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contributors`;
-        // Fetch all PRs (open and closed). Note: per_page=100 is max.
         const pullsUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls?state=all&per_page=100`;
+        const commitsUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/commits?per_page=5`; // For timeline
 
-        const [contribResponse, pullsResponse] = await Promise.all([
+        const [contribResponse, pullsResponse, commitsResponse] = await Promise.all([
           fetch(contribUrl),
-          fetch(pullsUrl)
+          fetch(pullsUrl),
+          fetch(commitsUrl)
         ]);
 
-        if (!contribResponse.ok) {
-          throw new Error(`Failed to fetch contributors: ${contribResponse.status}`);
-        }
-        if (!pullsResponse.ok) {
-          throw new Error(`Failed to fetch pull requests: ${pullsResponse.status}`);
-        }
+        if (!contribResponse.ok) throw new Error(`Fetch contributors failed: ${contribResponse.status}`);
+        if (!pullsResponse.ok) throw new Error(`Fetch PRs failed: ${pullsResponse.status}`);
+        if (!commitsResponse.ok) throw new Error(`Fetch commits failed: ${commitsResponse.status}`);
         
         const contribData = await contribResponse.json();
         const pullsData = await pullsResponse.json();
+        const commitsData = await commitsResponse.json();
 
-        // --- 1. Process Pull Requests to create a count ---
+        // --- 1. Process PRs ---
         const prCounts = {};
         pullsData.forEach(pr => {
           if (pr.user) {
-            const username = pr.user.login;
-            prCounts[username] = (prCounts[username] || 0) + 1;
+            prCounts[pr.user.login] = (prCounts[pr.user.login] || 0) + 1;
           }
         });
 
-        // --- 2. Map Contributor data and merge PR counts ---
-        const formattedData = contribData.map(user => {
-          const prCount = prCounts[user.login] || 0; // Get PR count from our tally
-          
+        // --- 2. Process Commits for Timeline ---
+        const formattedActivity = commitsData.map(commit => ({
+          sha: commit.sha,
+          message: commit.commit.message.split('\n')[0], // Get first line of message
+          author: commit.commit.author.name,
+          date: new Date(commit.commit.author.date).toLocaleDateString(),
+        }));
+        setActivity(formattedActivity);
+
+        // --- 3. Process Contributors ---
+        let totalCommits = 0;
+        let totalPRs = 0;
+        let totalPoints = 0;
+        let leadContributor = null;
+        const otherContributors = [];
+
+        contribData.forEach(user => {
+          const prCount = prCounts[user.login] || 0;
+          const points = user.contributions + (prCount * 5); // Points logic
+
           let level = 'contributor';
           if (user.contributions > 50) level = 'gold';
           else if (user.contributions > 20) level = 'silver';
           else if (user.contributions > 10) level = 'bronze';
 
-          return {
+          const formattedUser = {
             id: user.id,
             name: user.login,
             username: `@${user.login}`,
             avatar: user.avatar_url,
             role: 'Contributor',
-            // --- Use both counts ---
-            commits: user.contributions, // This is the total "contributions"
-            prs: prCount,                 // This is the specific "PR" count
-            // ---
-            projects: 0, // Still static, as this isn't from the API
+            commits: user.contributions,
+            prs: prCount,
+            points: points,
             badges: ['Contributor', level],
             level: level,
-            links: [
-              { icon: 'fab fa-github', url: user.html_url }
-            ],
-            isLead: false 
+            links: [{ icon: 'fab fa-github', url: user.html_url }],
           };
+
+          // --- Separate the project lead ---
+          if (user.login === PROJECT_LEAD) {
+            leadContributor = { ...formattedUser, isLead: true, role: 'Project Lead' };
+          } else {
+            otherContributors.push(formattedUser);
+          }
+
+          totalCommits += user.contributions;
+          totalPRs += prCount;
+          totalPoints += points;
         });
 
-        setContributors(formattedData);
+        setProjectLead(leadContributor);
+        setContributors(otherContributors);
 
-        // --- 3. Calculate stats from fetched data ---
-        const totalContributions = formattedData.reduce((acc, c) => acc + c.commits, 0);
-        const totalPRs = formattedData.reduce((acc, c) => acc + c.prs, 0);
-        const goldCount = formattedData.filter(c => c.level === 'gold').length;
-
+        // --- 4. Set Stats ---
         setStats({
           totalContributors: contribData.length,
-          totalCommits: totalContributions,
-          totalPRs: totalPRs, // Set new stat
-          goldContributors: goldCount,
+          totalCommits: totalCommits,
+          totalPRs: totalPRs,
+          totalPoints: totalPoints,
         });
 
       } catch (e) {
@@ -107,312 +131,225 @@ const Contributors = () => {
       }
     };
 
-    fetchContributorData();
-  }, []); // Empty array ensures this runs once on mount
+    fetchAllData();
+  }, []);
 
-  // --- Filter logic (unchanged) ---
+  // --- Filter and Sort Logic ---
   const filteredContributors = contributors.filter(contributor => {
-    const matchesSearch =
-      contributor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contributor.username.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = contributor.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterLevel === 'all' || (filterLevel === contributor.level);
     return matchesSearch && matchesFilter;
   });
 
-  // --- Sort logic (unchanged) ---
   const sortedContributors = filteredContributors.sort((a, b) => {
-    if (sortBy === 'contributions') {
-      return b.commits - a.commits; // Descending
-    }
-    if (sortBy === 'alphabetical') {
-      return a.name.localeCompare(b.name); // A-Z
-    }
-    if (sortBy === 'prs') {
-      return b.prs - a.prs; // Sort by PRs
-    }
+    if (sortBy === 'contributions') return b.commits - a.commits;
+    if (sortBy === 'alphabetical') return a.name.localeCompare(b.name);
+    if (sortBy === 'prs') return b.prs - a.prs;
+    if (sortBy === 'points') return b.points - b.points;
     return b.commits - a.commits;
   });
 
-  // --- Pagination (unchanged) ---
+  // --- Pagination Logic ---
   const itemsPerPage = 6;
   const totalPages = Math.ceil(sortedContributors.length / itemsPerPage);
   const paginatedContributors = sortedContributors.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const handlePrevPage = () => { if (currentPage > 1) setCurrentPage(currentPage - 1); };
+  const handleNextPage = () => { if (currentPage < totalPages) setCurrentPage(currentPage + 1); };
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-
-  // --- Render card function ---
+  // --- Render Card Function ---
+  // We add an onClick to open the modal
   const renderContributorCard = (contributor) => (
     <div
       key={contributor.id}
-      className={`contributor-card ${contributor.isLead ? 'project-lead-card' : ''}`}
+      className="contributor"
+      onClick={() => setSelectedContributor(contributor)}
     >
-      {contributor.isLead && (
-        <div className="project-lead-badge">🌟 Project Lead</div>
-      )}
-      <div className="card-header">
-        <div className="contributor-avatar">
-          <img src={contributor.avatar} alt={`${contributor.name}'s avatar`} />
-        </div>
-        <h3 className="contributor-name">{contributor.name}</h3>
-        <span className="contributor-username">{contributor.username}</span>
-        <div className="contributor-stats">
-          <div className="stat-item">
-            {/* --- UPDATED LABEL --- */}
-            <div className="stat-value">{contributor.commits}</div>
-            <div className="stat-label">Contributions</div>
-          </div>
-          <div className="stat-item">
-            {/* --- NOW USES LIVE DATA --- */}
-            <div className="stat-value">{contributor.prs}</div>
-            <div className="stat-label">PRs</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-value">{contributor.projects}</div>
-            <div className="stat-label">Projects</div>
-          </div>
-        </div>
-      </div>
-      <div className="card-footer">
-        <div className="contributor-badges">
-          {contributor.badges.map((badge, idx) => (
-            <span
-              key={idx}
-              className={`contributor-badge ${
-                badge.includes('Lead') ? 'badge-gold' :
-                badge.includes('gold') ? 'badge-gold' :
-                badge.includes('silver') ? 'badge-silver' :
-                badge.includes('bronze') ? 'badge-bronze' : ''
-              }`}
-            >
-              {badge}
-            </span>
-          ))}
-        </div>
-        <div className="contributor-links">
-          {contributor.links.map((link, idx) => (
-            <a
-              key={idx}
-              href={link.url}
-              className="contributor-link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className={link.icon}></i>
-            </a>
-          ))}
-        </div>
-      </div>
+      <img src={contributor.avatar} alt={contributor.name} />
+      <a href={contributor.links[0].url} target="_blank" rel="noopener noreferrer">
+        {contributor.name}
+      </a>
+      <p>Contributions: {contributor.commits}</p>
+      <p>PRs: {contributor.prs}</p>
     </div>
   );
 
   return (
     <div className="contributors-page">
       <main className="main-content">
+        {/* --- Hero Section from HTML --- */}
         <section className="contributors-hero">
           <div className="container">
-            <h1>🌟 Our Amazing Contributors</h1>
+            <h1>Our Amazing Contributors</h1>
             <p>
-              Meet the talented developers, designers, and contributors who help make FoodSaver better every day
-              through their dedication and expertise.
+              Meet the talented developers and contributors who help make FoodSaver
+              better every day
             </p>
+          </div>
+          <div className="contributor-container">
+            <h1>🌟 GitHub Contributors Dashboard</h1>
+            
+            {/* --- Stats Section from HTML --- */}
+            <div id="stats">
+              <div className="stat-box">
+                <h3>Total Contributors</h3>
+                <p id="totalContributors">{stats.totalContributors}</p>
+              </div>
+              <div className="stat-box">
+                <h3>Total Contributions</h3>
+                <p id="totalCommits">{stats.totalCommits}</p>
+              </div>
+              <div className="stat-box">
+                <h3>Total PRs</h3>
+                <p id="totalPRs">{stats.totalPRs}</p>
+              </div>
+              <div className="stat-box">
+                <h3>Total Points</h3>
+                <p id="totalPoints">{stats.totalPoints}</p>
+              </div>
+            </div>
+
+            {/* --- Controls Section from HTML --- */}
+            <div className="search-contributor">
+              <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Search contributor..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <select 
+                id="sortBy" 
+                className="filter-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="contributions">Most Contributions</option>
+                <option value="prs">Most PRs</option>
+                <option value="points">Most Points</option>
+                <option value="alphabetical">Alphabetical</option>
+              </select>
+              <select 
+                id="filterLevel" 
+                className="filter-select"
+                value={filterLevel}
+                onChange={(e) => setFilterLevel(e.target.value)}
+              >
+                <option value="all">All Levels</option>
+                <option value="gold">🥇 Gold (50+)</option>
+                <option value="silver">🥈 Silver (20-49)</option>
+                <option value="bronze">🥉 Bronze (10-19)</option>
+                <option value="contributor">⭐ Contributor (1-9)</option>
+              </select>
+            </div>
+
+            {/* --- Spinner from HTML --- */}
+            {isLoading && (
+              <div id="spinner" style={{ display: 'flex' }}>
+                <div className="spinner-circle"></div>
+              </div>
+            )}
+
+            {/* --- Error Message from HTML --- */}
+            {error && <p id="errorMessage">Error: {error}</p>}
+
+            {/* --- Project Lead Card from HTML --- */}
+            {projectLead && (
+              <div id="projectLeadContainer" style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0' }}>
+                <div 
+                  className="contributor special-lead" 
+                  onClick={() => setSelectedContributor(projectLead)}
+                  style={{cursor: 'pointer'}}
+                >
+                  <img src={projectLead.avatar} alt={projectLead.name} />
+                  <a href={projectLead.links[0].url} target="_blank" rel="noopener noreferrer">
+                    {projectLead.name}
+                  </a>
+                  <p style={{ fontWeight: 600, color: '#ffd700' }}>🌟 {projectLead.role} 🌟</p>
+                  <p>Contributions: {projectLead.commits} | PRs: {projectLead.prs}</p>
+                </div>
+              </div>
+            )}
+
+            {/* --- Contributors Grid --- */}
+            {!isLoading && (
+              <div id="contributorsList">
+                {paginatedContributors.map(renderContributorCard)}
+              </div>
+            )}
+
+            {/* --- Pagination Controls from HTML --- */}
+            {!isLoading && totalPages > 1 && (
+              <div id="controls">
+                <button id="prevPage" onClick={handlePrevPage} disabled={currentPage === 1}>
+                  ⬅️ Prev
+                </button>
+                <span>Page <span id="currentPage">{currentPage}</span> of <span id="totalPages">{totalPages}</span></span>
+                <button id="nextPage" onClick={handleNextPage} disabled={currentPage === totalPages}>
+                  Next ➡️
+                </button>
+              </div>
+            )}
+
+            {/* --- Dynamic Activity Timeline --- */}
+            <div id="activityTimeline" className="timeline-container">
+              <h2>Recent Contribution Activity</h2>
+              <div id="timelineContent" className="timeline-content">
+                {activity.length > 0 ? (
+                  activity.map(item => (
+                    <div className="timeline-item" key={item.sha}>
+                      <div className="timeline-content-item">
+                        <div className="timeline-date">{item.date}</div>
+                        <h3 className="timeline-title-item">{item.author}</h3>
+                        <p className="timeline-desc">{item.message}</p>
+                      </div>
+                      <div className="timeline-dot"></div>
+                    </div>
+                  ))
+                ) : (
+                  !isLoading && <p>No recent activity found.</p>
+                )}
+              </div>
+            </div>
+            
           </div>
         </section>
 
-        <div className="container">
-          {/* Stats Section */}
-          <div className="stats-container">
-            <div className="stat-card">
-              <i className="fas fa-users"></i>
-              <h3>Total Contributors</h3>
-              <p>{stats.totalContributors.toLocaleString()}</p>
+        {/* --- How to Contribute Section from HTML --- */}
+        <section className="contribute-section" style={{ padding: '50px 0', textAlign: 'center' }}>
+          <div className="container" style={{ maxWidth: '1200px', margin: 'auto' }}>
+            <div className="section-header" style={{ marginBottom: '40px' }}>
+              <h2>Want to Contribute?</h2>
+              <p>Join our community and help improve FoodSaver</p>
             </div>
-            <div className="stat-card">
-              <i className="fas fa-code-commit"></i>
-              {/* --- UPDATED LABEL --- */}
-              <h3>Total Contributions</h3>
-              <p>{stats.totalCommits.toLocaleString()}</p>
-            </div>
-            <div className="stat-card">
-              {/* --- NEW CARD --- */}
-              <i className="fas fa-code-pull-request"></i>
-              <h3>Total PRs</h3>
-              <p>{stats.totalPRs.toLocaleString()}</p>
-            </div>
-            <div className="stat-card">
-              <i className="fas fa-trophy"></i>
-              <h3>Gold Contributors</h3>
-              <p>{stats.goldContributors}</p>
-            </div>
-          </div>
-
-          {/* Controls Section */}
-          <div className="controls-section">
-            <h2 className="controls-title">Filter & Search Contributors</h2>
-            <div className="controls-grid">
-              <div className="control-group">
-                <label htmlFor="searchInput">Search Contributor</label>
-                <input
-                  type="text"
-                  id="searchInput"
-                  className="control-input"
-                  placeholder="Enter name or username..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="control-group">
-                <label htmlFor="sortBy">Sort By</label>
-                <select
-                  id="sortBy"
-                  className="control-input"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  <option value="contributions">Most Contributions</option>
-                  <option value="prs">Most PRs</option> {/* --- NEW SORT --- */}
-                  <option value="alphabetical">Alphabetical</option>
-                </select>
-              </div>
-              <div className="control-group">
-                <label htmlFor="filterLevel">Filter By Level</label>
-                <select
-                  id="filterLevel"
-                  className="control-input"
-                  value={filterLevel}
-                  onChange={(e) => setFilterLevel(e.target.value)}
-                >
-                  <option value="all">All Levels</option>
-                  <option value="gold">🥇 Gold (50+)</option>
-                  <option value="silver">🥈 Silver (20-49)</option>
-                  <option value="bronze">🥉 Bronze (10-19)</option>
-                  <option value="contributor">⭐ Contributor (1-9)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Contributors Grid */}
-          <div className="contributors-grid">
-            {isLoading ? (
-              <div className="loading-message">
-                <i className="fas fa-spinner fa-spin"></i> Loading Contributors...
-              </div>
-            ) : error ? (
-              <div className="error-message">
-                <h3>Error: {error}</h3>
-                <p>Could not load contributors. Please try again later.</p>
-              </div>
-            ) : paginatedContributors.length > 0 ? (
-              paginatedContributors.map(renderContributorCard)
-            ) : (
-              <div className="no-contributors">
-                <i className="fas fa-search" style={{ fontSize: '3rem', marginBottom: '1rem' }}></i>
-                <h3>No contributors found</h3>
-                <p>Try adjusting your search or filter criteria</p>
-              </div>
-            )}
-          </div>
-
-          {/* Pagination (unchanged) */}
-          {sortedContributors.length > itemsPerPage && (
-            <div className="pagination">
-              <button
-                className="pagination-btn"
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-              >
-                <i className="fas fa-arrow-left"></i> Previous
-              </button>
-              <span className="pagination-info">
-                Page <span className="current-page">{currentPage}</span> of <span className="total-pages">{totalPages}</span>
-              </span>
-              <button
-                className="pagination-btn"
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-              >
-                Next <i className="fas fa-arrow-right"></i>
-              </button>
-            </div>
-          )}
-
-          {/* Activity Timeline (Static - unchanged) */}
-          <div className="timeline-section">
-            <h2 className="timeline-title">Recent Contribution Activity</h2>
-            <div className="timeline">
-              <div className="timeline-item">
-                <div className="timeline-content">
-                  <div className="timeline-date">Nov 12, 2023</div>
-                  <h3 className="timeline-title-item">New Feature: Dashboard</h3>
-                  <p className="timeline-desc">Admin dashboard layout and charts integration completed.</p>
-                </div>
-                <div className="timeline-dot"></div>
-              </div>
-              <div className="timeline-item">
-                <div className="timeline-content">
-                  <div className="timeline-date">Oct 28, 2023</div>
-                  <h3 className="timeline-title-item">UI Redesign</h3>
-                  <p className="timeline-desc">Homepage and NGO page redesign merged.</p>
-                </div>
-                <div className="timeline-dot"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* How to Contribute (Static - unchanged) */}
-        <section className="contribute-section">
-          <div className="container">
-            <div className="contribute-header">
-              <h2>🚀 Want to Contribute?</h2>
-              <p>Join our vibrant community and help improve FoodSaver. Every contribution counts!</p>
-            </div>
-            <div className="steps-container">
-              {/* Static steps map... */}
-              {[1, 2, 3, 4, 5, 6].map(num => (
-                <div key={num} className="step-card">
-                  <div className="step-number">{num}</div>
-                  <div className="step-icon">
-                    <i className={
-                      num === 1 ? 'fas fa-clipboard-list' :
-                      num === 2 ? 'fab fa-github' :
-                      num === 3 ? 'fas fa-code-branch' :
-                      num === 4 ? 'fas fa-code' :
-                      num === 5 ? 'fas fa-upload' :
-                      'fas fa-check-circle'
-                    }></i>
-                  </div>
-                  <h3>
-                    {num === 1 ? 'Create an Issue' :
-                      num === 2 ? 'Fork the Repository' :
-                      num === 3 ? 'Create a Branch' :
-                      num === 4 ? 'Make Changes' :
-                      num === 5 ? 'Submit PR' :
-                      'Get Merged'}
-                  </h3>
-                  <p>
-                    {num === 1 ? 'Start by creating an issue describing your proposed change. Wait for it to be assigned before proceeding.' :
-                      num === 2 ? 'Fork the main repository to your GitHub account to create your own working copy.' :
-                      num === 3 ? 'Create a feature branch for your changes using a descriptive naming convention.' :
-                      num === 4 ? 'Implement your features or bug fixes following our coding standards and guidelines.' :
-                      num === 5 ? 'Create a pull request with a clear description ofyour changes for review.' :
-                      'After review and approval, your contribution will be merged into the main codebase!'}
-                  </p>
+            <div className="contribute-steps" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '25px' }}>
+              {/* Step cards */}
+              {[
+                { icon: 'fas fa-clipboard-list', title: 'Create an Issue', desc: 'Start by creating an issue describing your change and wait for it to be assigned.' },
+                { icon: 'fab fa-github', title: 'Fork the Repository', desc: 'Fork the main repository to your GitHub account to create your own copy.' },
+                { icon: 'fas fa-code-branch', title: 'Create a Branch', desc: 'Create a feature branch for your changes using a descriptive name.' },
+                { icon: 'fas fa-code', title: 'Make Changes', desc: 'Implement your features or bug fixes following our coding standards.' },
+                { icon: 'fas fa-upload', title: 'Submit PR', desc: 'Create a pull request with a clear description of your changes for review.' }
+              ].map(step => (
+                <div key={step.title} className="step-card" style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '20px', width: '200px', textAlign: 'center' }}>
+                  <div className="step-icon" style={{ fontSize: '36px', marginBottom: '10px' }}><i className={step.icon}></i></div>
+                  <h3>{step.title}</h3>
+                  <p>{step.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
       </main>
+      {/* --- Render the modal if a contributor is selected --- */}
+      {selectedContributor && (
+        <ContributorModal 
+          contributor={selectedContributor} 
+          onClose={() => setSelectedContributor(null)} 
+        />
+      )}
     </div>
   );
 };
