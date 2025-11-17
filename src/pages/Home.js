@@ -492,36 +492,166 @@ const Home = () => {
           ))}
         </motion.div>
       </div>
-      {/* The sections below use CSS classes (e.g., "testimonials-heading").
-        These will not be styled without a corresponding CSS file.
-        Leaving them as-is, as requested, to only fix errors.
-      */}
 
-      {/* Testimonials */}
-      <h2 className="testimonials-heading">Testimonials</h2>
-      <div className="testimonials-carousel">
-        {testimonialsData.map((testimonial, index) => (
-          <div key={index} className="testimonial-card">
-            <div className={testimonial.imageClass}></div>
-            <div>
-              <p className="testimonial-text">{testimonial.quote}</p>
-              <p className="testimonial-author">{testimonial.author}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Final CTA Section */}
-      <div className="cta-section">
-        <div className="cta-content">
-          <h1 className="cta-title">Ready to Make a Difference?</h1>
+      {/* Testimonials Section - Fixed with inline styles for visibility */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          maxWidth: "1400px",
+          margin: "0 auto",
+          padding: "60px 20px",
+        }}
+      >
+        <h2 
+          style={{
+            fontSize: "2.5rem",
+            fontWeight: "700",
+            color: "white",
+            marginBottom: "40px",
+            textAlign: "center",
+            background: "linear-gradient(135deg, #10b981, #06b6d4)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          Testimonials
+        </h2>
+        <div 
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "32px",
+            padding: "20px 0",
+          }}
+        >
+          {testimonialsData.map((testimonial, index) => (
+            <motion.div 
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              whileHover={{ y: -10 }}
+              viewport={{ once: true }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+                padding: "32px",
+                background: "rgba(255, 255, 255, 0.05)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: "16px",
+              }}
+            >
+              <div 
+                className={testimonial.imageClass}
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  border: "3px solid #10b981",
+                }}
+              ></div>
+              <div>
+                <p 
+                  style={{
+                    fontSize: "1.125rem",
+                    fontWeight: "500",
+                    color: "rgba(255, 255, 255, 0.9)",
+                    lineHeight: "1.6",
+                    marginBottom: "16px",
+                    fontStyle: "italic",
+                  }}
+                >
+                  {testimonial.quote}
+                </p>
+                <p 
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: "600",
+                    color: "#10b981",
+                  }}
+                >
+                  {testimonial.author}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
-        <div className="cta-button-container">
-          <Link to="/registration" className="cta-button final-cta-button">
-            <span className="cta-text">Get Started</span>
+      </motion.div>
+
+      {/* Final CTA Section - Fixed with inline styles for visibility */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          maxWidth: "1400px",
+          margin: "0 auto",
+          padding: "80px 20px",
+          textAlign: "center",
+        }}
+      >
+        <motion.div
+          initial={{ scale: 0.9 }}
+          whileInView={{ scale: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          style={{
+            padding: "60px 40px",
+            background: "rgba(16, 185, 129, 0.1)",
+            backdropFilter: "blur(20px)",
+            border: "2px solid rgba(16, 185, 129, 0.3)",
+            borderRadius: "24px",
+          }}
+        >
+          <h1 
+            style={{
+              fontSize: "clamp(2rem, 5vw, 3.5rem)",
+              fontWeight: "900",
+              color: "white",
+              marginBottom: "32px",
+              background: "linear-gradient(135deg, #10b981, #06b6d4)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Ready to Make a Difference?
+          </h1>
+          <Link to="/registration" style={{ textDecoration: 'none' }}>
+            <motion.button
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 20px 60px rgba(16, 185, 129, 0.5)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                padding: "20px 48px",
+                background: "linear-gradient(135deg, #10b981, #059669)",
+                color: "white",
+                fontWeight: "700",
+                fontSize: "1.25rem",
+                borderRadius: "50px",
+                border: "none",
+                cursor: "pointer",
+                boxShadow: "0 10px 40px rgba(16,185,129,0.4)",
+              }}
+            >
+              Get Started
+            </motion.button>
           </Link>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
