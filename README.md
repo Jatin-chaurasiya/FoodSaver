@@ -4,7 +4,65 @@
 
 A modern React application that connects restaurants with NGOs to reduce food waste and feed communities. This platform facilitates the donation of surplus food from restaurants to NGOs for distribution to those in need.
 
+<div align="center">
+
+## 📊 Project Statistics
+
+<table>
+  <tr>
+    <td align="center" width="14.28%">
+      <img src="https://img.icons8.com/fluency/96/star--v1.png" width="48px" alt="Stars"/><br/>
+      <strong>Stars</strong><br/>
+      <a href="https://github.com/bidyut26maji/FoodSaver/stargazers">
+        <img src="https://img.shields.io/github/stars/bidyut26maji/FoodSaver?style=flat-square&labelColor=343b41&color=yellow" alt="stars"/>
+      </a>
+    </td>
+    <td align="center" width="14.28%">
+      <img src="https://img.icons8.com/fluency/96/code-fork.png" width="48px" alt="Forks"/><br/>
+      <strong>Forks</strong><br/>
+      <a href="https://github.com/bidyut26maji/FoodSaver/network/members">
+        <img src="https://img.shields.io/github/forks/bidyut26maji/FoodSaver?style=flat-square&labelColor=343b41&color=blue" alt="forks"/>
+      </a>
+    </td>
+    <td align="center" width="14.28%">
+      <img src="https://img.icons8.com/fluency/96/error--v1.png" width="48px" alt="Issues"/><br/>
+      <strong>Issues</strong><br/>
+      <a href="https://github.com/bidyut26maji/FoodSaver/issues">
+        <img src="https://img.shields.io/github/issues/bidyut26maji/FoodSaver?style=flat-square&labelColor=343b41&color=red" alt="issues"/>
+      </a>
+    </td>
+    <td align="center" width="14.28%">
+      <img src="https://img.icons8.com/fluency/96/pull-request.png" width="48px" alt="Open PRs"/><br/>
+      <strong>Open PRs</strong><br/>
+      <a href="https://github.com/bidyut26maji/FoodSaver/pulls">
+        <img src="https://img.shields.io/github/issues-pr/bidyut26maji/FoodSaver?style=flat-square&labelColor=343b41&color=orange" alt="open PRs"/>
+      </a>
+    </td>
+    <td align="center" width="14.28%">
+      <img src="https://img.icons8.com/fluency/96/checkmark.png" width="48px" alt="Closed PRs"/><br/>
+      <strong>Closed PRs</strong><br/>
+      <a href="https://github.com/bidyut26maji/FoodSaver/pulls?q=is%3Apr+is%3Aclosed">
+        <img src="https://img.shields.io/github/issues-pr-closed/bidyut26maji/FoodSaver?style=flat-square&labelColor=343b41&color=green" alt="closed PRs"/>
+      </a>
+    </td>
+    <td align="center" width="14.28%">
+      <img src="https://img.icons8.com/fluency/96/language.png" width="48px" alt="Languages"/><br/>
+      <strong>Languages</strong><br/>
+      <img src="https://img.shields.io/github/languages/count/bidyut26maji/FoodSaver?style=flat-square&labelColor=343b41&color=blueviolet" alt="language count"/>
+    </td>
+    <td align="center" width="14.28%">
+      <img src="https://img.icons8.com/fluency/96/crowd.png" width="48px" alt="Contributors"/><br/>
+      <strong>Contributors</strong><br/>
+      <a href="https://github.com/bidyut26maji/FoodSaver/graphs/contributors">
+        <img src="https://img.shields.io/github/contributors/bidyut26maji/FoodSaver?style=flat-square&labelColor=343b41&color=purple" alt="contributors"/>
+      </a>
+    </td>
+  </tr>
+</table>
+
 <img src="https://github.com/Mayur-Pagote/README_Design_Kit/blob/730d340c8008758ac291ebc555f818f851feda0f/Assets/RGB%20Line%20Thick.gif" width="100%" />
+
+</div>
 
 ## 📑 Table of Contents
 
